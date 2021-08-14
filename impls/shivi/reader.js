@@ -1,4 +1,4 @@
-const {List, Vector, Nil, Str, HashMap} = require("./types")
+const {List, Vector, Nil, Str, HashMap, Symbol} = require("./types")
 
 class Reader {
   constructor(tokens) {
@@ -39,6 +39,7 @@ const read_seq = (reader, closing) => {
       ast.push(read_form(reader))
     }
   }
+  reader.next()
   return ast;
 };
 
@@ -65,7 +66,7 @@ const read_atom = (reader) => {
     }
     throw "unbalanced"
   }
-  return token
+  return new Symbol(token)
 };
 
 const read_list = (reader) => {

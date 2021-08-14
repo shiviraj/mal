@@ -3,6 +3,10 @@ class List {
     this.ast = ast
   }
 
+  isEmpty() {
+    return this.ast.length === 0
+  }
+
   toString() {
     return `(${this.ast.map(ast => ast.toString()).join(" ")})`
   }
@@ -44,4 +48,14 @@ class HashMap {
   }
 }
 
-module.exports = {List, Vector, Nil, Str, HashMap}
+class Symbol {
+  constructor(symbol) {
+    this.symbol = symbol
+  }
+
+  toString() {
+    return `${this.symbol}`
+  }
+}
+
+module.exports = {List, Vector, Nil, Str, HashMap, Symbol}
