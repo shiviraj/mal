@@ -1,4 +1,17 @@
-const {List, Vector, Nil, Str, HashMap, Symbol} = require("./types")
+const {
+  List,
+  Vector,
+  Nil,
+  Str,
+  HashMap,
+  Symbol,
+  Quote,
+  QuasiQuote,
+  UnQuote,
+  SpliceUnQuote,
+  Deref,
+  WithMeta
+} = require("./types")
 
 class Reader {
   constructor(tokens) {
@@ -61,10 +74,38 @@ const read_atom = (reader) => {
     return new Nil()
   }
   if (token.startsWith('"')) {
-    if (token.match(/^".*[^\\]"$/g)) {
+    if (token.match(/^"?.*[^\\]"$/g)) {
       return new Str(token.substring(1, token.length - 1))
     }
+    if (token.endsWith('"') && token.length > 1) {
+      let occurences = 0
+      token.slice(1, -1).split(/\\/g).reverse().some((item, index) => {
+        occurences = index
+        return item
+      })
+      if (occurences % 2 === 0) {
+        return new Str(token.substring(1, token.length - 1))
+      }
+    }
     throw "unbalanced"
+  }
+  if (token.startsWith("'")) {
+    return new Quote(read_form(reader))
+  }
+  if (token.startsWith("`")) {
+    return new QuasiQuote(read_form(reader))
+  }
+  if (token.startsWith("~@")) {
+    return new SpliceUnQuote(read_form(reader))
+  }
+  if (token.startsWith("~")) {
+    return new UnQuote(read_form(reader))
+  }
+  if (token.startsWith("@")) {
+    return new Deref(read_form(reader))
+  }
+  if (token.startsWith("^")) {
+    return new WithMeta(read_form(reader))
   }
   return new Symbol(token)
 };
