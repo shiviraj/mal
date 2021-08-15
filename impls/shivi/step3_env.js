@@ -29,12 +29,8 @@ const eval_ast = (ast, env) => {
     return new Vector(newAst)
   }
   if (ast instanceof HashMap) {
-    const newList = []
-    for (const [k, v] of ast.hashMap.entries()) {
-      newList.push(EVAL(k, env))
-      newList.push(EVAL(v, env))
-    }
-    return new HashMap(newList)
+    const newAst = ast.ast.map((item, index) => index % 2 ? EVAL(item, env) : item);
+    return new HashMap(newAst)
   }
   return ast
 }

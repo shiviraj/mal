@@ -40,11 +40,30 @@ class Str {
 
 class HashMap {
   constructor(ast) {
-    this.ast = ast
+    this.hashMap = new Map()
+    for (let i = 0; i < ast.length; i += 2) {
+      this.hashMap.set(ast[i], ast[i + 1])
+    }
   }
 
   toString() {
-    return `{${this.ast.map(ast => ast.toString()).join(" ")}}`
+    let str = ""
+    let separator = ""
+    for (let [k, v] of this.hashMap.entries()) {
+      str = `${str}${separator}${k.toString()} ${v.toString()}`
+      separator = " "
+    }
+    return `{${str}}`
+  }
+}
+
+class Keyword {
+  constructor(keyword) {
+    this.keyword = keyword
+  }
+
+  toString() {
+    return `:${this.keyword}`
   }
 }
 
@@ -119,4 +138,18 @@ class WithMeta {
   }
 }
 
-module.exports = {List, Vector, Nil, Str, HashMap, Symbol, Quote, QuasiQuote, UnQuote, SpliceUnQuote, Deref, WithMeta}
+module.exports = {
+  List,
+  Vector,
+  Nil,
+  Str,
+  HashMap,
+  Symbol,
+  Keyword,
+  Quote,
+  QuasiQuote,
+  UnQuote,
+  SpliceUnQuote,
+  Deref,
+  WithMeta
+}

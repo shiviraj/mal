@@ -10,7 +10,7 @@ const {
   UnQuote,
   SpliceUnQuote,
   Deref,
-  WithMeta
+  WithMeta, Keyword
 } = require("./types")
 
 class Reader {
@@ -106,6 +106,9 @@ const read_atom = (reader) => {
   }
   if (token.startsWith("^")) {
     return new WithMeta(read_form(reader))
+  }
+  if (token.startsWith(":")) {
+    return new Keyword(token.slice(1))
   }
   return new Symbol(token)
 };
