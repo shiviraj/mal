@@ -2,23 +2,22 @@ const readline = require("readline")
 const read_str = require("./reader");
 const pr_str = require("./printer")
 const {Symbol, List, Vector, HashMap} = require("./types")
+const {Env} = require("./env");
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-const env = {
-  '+': (...list) => list.reduce((x, y) => x + y),
-  '-': (...list) => list.reduce((x, y) => x - y),
-  '*': (...list) => list.reduce((x, y) => x * y),
-  '/': (...list) => list.reduce((x, y) => x / y),
-  'PI': Math.PI
-}
+const env = new Env(null)
+env.set(new Symbol('+'), (...list) => list.reduce((x, y) => x + y))
+env.set(new Symbol('-'), (...list) => list.reduce((x, y) => x - y))
+env.set(new Symbol('*'), (...list) => list.reduce((x, y) => x * y))
+env.set(new Symbol('/'), (...list) => list.reduce((x, y) => x / y))
 
 const eval_ast = (ast, env) => {
   if (ast instanceof Symbol) {
-    return env[ast.symbol]
+    return env.get(ast)
   }
   if (ast instanceof List) {
     const newAst = ast.ast.map(item => EVAL(item, env));
@@ -29,8 +28,12 @@ const eval_ast = (ast, env) => {
     return new Vector(newAst)
   }
   if (ast instanceof HashMap) {
-    const newAst = ast.ast.map((item, index) => index % 2 ? EVAL(item, env) : item);
-    return new HashMap(newAst)
+    const newList = []
+    for (const [k, v] of ast.hashMap.entries()) {
+      newList.push(EVAL(k, env))
+      newList.push(EVAL(v, env))
+    }
+    return new HashMap(newList)
   }
   return ast
 }
@@ -44,12 +47,24 @@ const EVAL = (ast, env) => {
   if (ast.isEmpty()) {
     return ast
   }
-  const [func, ...args] = eval_ast(ast, env).ast;
-  return func(...args)
+
+  switch (ast.ast[0].symbol) {
+    case "def!":
+      return env.set(ast.ast[1], EVAL(ast.ast[2], env))
+    case "let*":
+      const newEnv = new Env(env)
+      const bindings = ast.ast[1].ast
+      for (let i = 0; i < bindings.length; i += 2) {
+        newEnv.set(bindings[i], EVAL(bindings[i + 1], newEnv))
+      }
+      return EVAL(ast.ast[2], newEnv)
+    default:
+      const [func, ...args] = eval_ast(ast, env).ast;
+      return func(...args)
+  }
 }
-const PRINT = (ast) => {
-  return pr_str(ast);
-}
+
+const PRINT = (ast) => pr_str(ast)
 
 const rep = (str) => PRINT(EVAL(READ(str), env))
 
