@@ -1,9 +1,12 @@
 const {Nil} = require("./types");
 
 class Env {
-  constructor(env) {
+  constructor(env, binds = [], exprs = []) {
     this.outer = env
     this.data = {}
+    for (let i = 0; i < binds.length; i++) {
+      this.data[binds[i]] = exprs[i]
+    }
   }
 
   set(key, value) {

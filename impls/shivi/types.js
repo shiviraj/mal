@@ -1,10 +1,27 @@
+const {isPrimitiveType} = require("./utils");
+
 class List {
   constructor(ast) {
     this.ast = ast
   }
 
   isEmpty() {
-    return this.ast.length === 0
+    return this.count() === 0
+  }
+
+  count() {
+    return this.ast.length
+  }
+
+  equals(list) {
+    if (!(list instanceof List) || this.count() !== list.count()) return false
+    for (let i = 0; i < this.ast.length; i++) {
+      if (
+        (typeof this.ast[i] !== typeof list.ast[i]) ||
+        (!isPrimitiveType(this.ast[i]) && !this.ast[i].equals(list.ast[i]))
+      ) return false
+    }
+    return true
   }
 
   toString() {
@@ -17,12 +34,39 @@ class Vector {
     this.ast = ast
   }
 
+  isEmpty() {
+    return this.count() === 0
+  }
+
+  count() {
+    return this.ast.length
+  }
+
+  equals(vector) {
+    if (!(vector instanceof Vector) || this.count() !== vector.count()) return false
+    for (let i = 0; i < this.count(); i++) {
+      if (
+        (typeof this.ast[i] !== typeof vector.ast[i]) ||
+        (!isPrimitiveType(this.ast[i]) && !this.ast[i].equals(vector.ast[i]))
+      ) return false
+    }
+    return true
+  }
+
   toString() {
     return `[${this.ast.map(ast => ast.toString()).join(" ")}]`
   }
 }
 
 class Nil {
+  count() {
+    return 0
+  }
+
+  equals(nil) {
+    return nil instanceof Nil
+  }
+
   toString() {
     return "nil"
   }
@@ -31,6 +75,10 @@ class Nil {
 class Str {
   constructor(value) {
     this.value = value
+  }
+
+  equals(str) {
+    return this.value === str.value
   }
 
   toString() {
@@ -44,6 +92,14 @@ class HashMap {
     for (let i = 0; i < ast.length; i += 2) {
       this.hashMap.set(ast[i], ast[i + 1])
     }
+  }
+
+  isEmpty() {
+    return this.count() === 0
+  }
+
+  count() {
+    return this.hashMap.size
   }
 
   toString() {
@@ -60,6 +116,11 @@ class HashMap {
 class Keyword {
   constructor(keyword) {
     this.keyword = keyword
+  }
+
+  equals(keyword) {
+    if (!(keyword instanceof Keyword)) return false
+    return this.keyword === keyword.keyword
   }
 
   toString() {
@@ -138,6 +199,20 @@ class WithMeta {
   }
 }
 
+class Fn {
+  constructor(fn) {
+    this.fn = fn
+  }
+
+  apply(args) {
+    return this.fn.apply(null, args)
+  }
+
+  toString() {
+    return `#<function>`
+  }
+}
+
 module.exports = {
   List,
   Vector,
@@ -151,5 +226,5 @@ module.exports = {
   UnQuote,
   SpliceUnQuote,
   Deref,
-  WithMeta
+  WithMeta, Fn
 }
