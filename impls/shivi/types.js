@@ -14,7 +14,7 @@ class List {
   }
 
   equals(list) {
-    if (!(list instanceof List) || this.count() !== list.count()) return false
+    if (!(list instanceof List || list instanceof Vector) || this.count() !== list.count()) return false
     for (let i = 0; i < this.ast.length; i++) {
       if (
         (typeof this.ast[i] !== typeof list.ast[i]) ||
@@ -43,7 +43,7 @@ class Vector {
   }
 
   equals(vector) {
-    if (!(vector instanceof Vector) || this.count() !== vector.count()) return false
+    if (!(vector instanceof Vector || vector instanceof List) || this.count() !== vector.count()) return false
     for (let i = 0; i < this.count(); i++) {
       if (
         (typeof this.ast[i] !== typeof vector.ast[i]) ||
@@ -77,12 +77,20 @@ class Str {
     this.value = value
   }
 
+  concat(obj) {
+    const objValue = (obj instanceof Str) ? obj.value : obj.toString();
+    return new Str(this.value + objValue);
+  }
+
   equals(str) {
     return this.value === str.value
   }
 
-  toString() {
-    return `"${this.value}"`
+  toString(print_readably) {
+    const string = `"${this.value}"`;
+    if (print_readably)
+      return `${string.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, "\\n")}`
+    return string
   }
 }
 

@@ -17,16 +17,16 @@ core.set(new Symbol('>'), new Fn((x, y) => x > y))
 core.set(new Symbol('<='), new Fn((x, y) => x <= y))
 core.set(new Symbol('>='), new Fn((x, y) => x >= y))
 
-core.set(new Symbol("prn"), new Fn((x = new Nil()) => {
-  console.log(pr_str(x))
+core.set(new Symbol("prn"), new Fn((...list) => {
+  console.log(list.map(x => pr_str(x, true)).join(" "))
   return new Nil()
 }))
-core.set(new Symbol("println"), new Fn((x = new Nil()) => {
+core.set(new Symbol("println"), new Fn((x = "") => {
   console.log(pr_str(x))
   return new Nil()
 }))
 core.set(new Symbol("pr-str"), new Fn((...args) => {
-  return new Str(args.map(pr_str).join(""))
+  return new Str(args.map((arg) => pr_str(arg, true)).join(" "))
 }))
 core.set(new Symbol("list"), new Fn((...args) => new List(args)))
 core.set(new Symbol("list?"), new Fn((x) => x instanceof List))

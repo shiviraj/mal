@@ -81,7 +81,8 @@ const EVAL = (ast, env) => {
         : EVAL(ast.ast[2], env)
 
     case "str":
-      return ast.ast.slice(1).map(ast => EVAL(ast, env).toString()).join("")
+      if (!ast.ast[1]) return new Str("")
+      return ast.ast.slice(1).reduce((result, ast) => result.concat(EVAL(ast, env)), new Str(""))
     default:
       const [func, ...args] = eval_ast(ast, env).ast;
       return func.apply(args)
