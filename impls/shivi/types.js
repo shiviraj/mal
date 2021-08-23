@@ -1,4 +1,5 @@
 const {isPrimitiveType} = require("./utils");
+const {Env} = require("./env");
 
 class List {
   constructor(ast) {
@@ -208,12 +209,14 @@ class WithMeta {
 }
 
 class Fn {
-  constructor(fn) {
-    this.fn = fn
+  constructor(fnBody, binds, env) {
+    this.fnBody = fnBody
+    this.binds = binds
+    this.env = env
   }
 
-  apply(args) {
-    return this.fn.apply(null, args)
+  genEnv(args) {
+    return new Env(this.env, this.binds, args)
   }
 
   toString() {

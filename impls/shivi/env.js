@@ -18,18 +18,19 @@ class Env {
     if (key in this.data) {
       return this
     }
-    if (!this.outer) {
-      return new Nil()
+    if (this.outer === null) {
+      return null
     }
     return this.outer.find(key)
   }
 
   get(key) {
     const env = this.find(key.symbol)
-    if (env instanceof Nil) {
+    if (env !== null) {
+      return env.data[key.symbol]
+    } else {
       throw `${key.symbol} not found`
     }
-    return env.data[key.symbol]
   }
 }
 
