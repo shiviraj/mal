@@ -224,7 +224,24 @@ class Fn {
   }
 }
 
+class Atom {
+  constructor(value) {
+    this.value = value
+  }
+
+  set(value) {
+    this.value = value
+    return value
+  }
+
+
+  toString() {
+    return `(atom ${this.value})`
+  }
+}
+
 module.exports = {
+  Atom,
   List,
   Vector,
   Nil,
@@ -237,5 +254,6 @@ module.exports = {
   UnQuote,
   SpliceUnQuote,
   Deref,
-  WithMeta, Fn
+  WithMeta,
+  Fn
 }
