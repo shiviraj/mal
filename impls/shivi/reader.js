@@ -2,7 +2,6 @@ const {
   List,
   Vector,
   Nil,
-  Str,
   HashMap,
   Symbol,
   Quote,
@@ -64,6 +63,15 @@ const read_atom = (reader) => {
   if (token.match(/^-?[0-9]+\.[0-9]+$/)) {
     return parseFloat(token)
   }
+  if (token.match(/^"(?:\\.|[^\\"])*"$/)) {
+    return token.slice(1, token.length - 1)
+      .replace(/\\(.)/g, function (_, c) {
+        return c === "n" ? "\n" : c
+      })
+  }
+  if (token[0] === "\"") {
+    throw new Error("expected '\"', got EOF");
+  }
   if (token === "true") {
     return true
   }
@@ -73,22 +81,22 @@ const read_atom = (reader) => {
   if (token === "nil") {
     return new Nil()
   }
-  if (token.startsWith('"')) {
-    if (token.match(/^"?.*[^\\]"$/g)) {
-      return new Str(token.substring(1, token.length - 1))
-    }
-    if (token.endsWith('"') && token.length > 1) {
-      let occurences = 0
-      token.slice(1, -1).split(/\\/g).reverse().some((item, index) => {
-        occurences = index
-        return item
-      })
-      if (occurences % 2 === 0) {
-        return new Str(token.substring(1, token.length - 1))
-      }
-    }
-    throw "unbalanced"
-  }
+  // if (token.startsWith('"')) {
+  //   if (token.match(/^"?.*[^\\]"$/g)) {
+  //     return new Str(token.substring(1, token.length - 1))
+  //   }
+  //   if (token.endsWith('"') && token.length > 1) {
+  //     let occurences = 0
+  //     token.slice(1, -1).split(/\\/g).reverse().some((item, index) => {
+  //       occurences = index
+  //       return item
+  //     })
+  //     if (occurences % 2 === 0) {
+  //       return new Str(token.substring(1, token.length - 1))
+  //     }
+  //   }
+  //   throw "unbalanced"
+  // }
   if (token.startsWith("'")) {
     return new Quote(read_form(reader))
   }
@@ -111,7 +119,8 @@ const read_atom = (reader) => {
     return new Keyword(token.slice(1))
   }
   return new Symbol(token)
-};
+}
+
 
 const read_list = (reader) => {
   const ast = read_seq(reader, ")")
