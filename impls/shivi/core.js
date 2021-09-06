@@ -1,6 +1,6 @@
 const {Env} = require("./env");
 const pr_str = require("./printer")
-const {Symbol, Nil, List, Str, Atom} = require("./types");
+const {Symbol, Nil, List, Str, Atom, Vector} = require("./types");
 const {isPrimitiveType} = require("./utils");
 const read_str = require("./reader");
 const fs = require("fs");
@@ -40,7 +40,15 @@ core.set(new Symbol("atom?"), (arg) => arg instanceof Atom)
 core.set(new Symbol("deref"), (atom) => atom.value)
 core.set(new Symbol("reset!"), (atom, value) => atom.set(value))
 
+core.set(new Symbol("cons"), (element, seq) => seq.cons(element))
+core.set(new Symbol("concat"), (...lists) => {
+  const list = new List([])
+  return lists.reduce((a, b) => a.concat(b), list)
+})
+
 core.set(new Symbol("read-string"), (str) => read_str(str))
 core.set(new Symbol("slurp"), (filename) => fs.readFileSync(filename, "utf8"))
+core.set(new Symbol("vec"), (seq) => new Vector([...seq.ast]))
+
 
 module.exports = core

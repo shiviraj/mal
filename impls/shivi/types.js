@@ -1,9 +1,13 @@
 const {isPrimitiveType} = require("./utils");
 const {Env} = require("./env");
 
-class List {
+class MalSequence {
   constructor(ast) {
     this.ast = ast
+  }
+
+  startsWith(str) {
+    return this.ast[0] === str
   }
 
   isEmpty() {
@@ -14,44 +18,40 @@ class List {
     return this.ast.length
   }
 
-  equals(list) {
-    if (!(list instanceof List || list instanceof Vector) || this.count() !== list.count()) return false
-    for (let i = 0; i < this.ast.length; i++) {
+  cons(element) {
+    return new List([element, ...this.ast])
+  }
+
+  concat(other) {
+    return new List(this.ast.concat(other.ast))
+  }
+
+  equals(other) {
+    if (!(other instanceof MalSequence) || this.count() !== other.count()) return false
+    for (let i = 0; i < this.count(); i++) {
       if (
-        (typeof this.ast[i] !== typeof list.ast[i]) ||
-        (!isPrimitiveType(this.ast[i]) && !this.ast[i].equals(list.ast[i]))
+        (typeof this.ast[i] !== typeof other.ast[i]) ||
+        (!isPrimitiveType(this.ast[i]) && !this.ast[i].equals(other.ast[i]))
       ) return false
     }
     return true
   }
+
+}
+
+class List extends MalSequence {
 
   toString() {
     return `(${this.ast.map(ast => ast.toString()).join(" ")})`
   }
+
 }
 
-class Vector {
+class Vector extends MalSequence {
+
   constructor(ast) {
-    this.ast = ast
-  }
-
-  isEmpty() {
-    return this.count() === 0
-  }
-
-  count() {
-    return this.ast.length
-  }
-
-  equals(vector) {
-    if (!(vector instanceof Vector || vector instanceof List) || this.count() !== vector.count()) return false
-    for (let i = 0; i < this.count(); i++) {
-      if (
-        (typeof this.ast[i] !== typeof vector.ast[i]) ||
-        (!isPrimitiveType(this.ast[i]) && !this.ast[i].equals(vector.ast[i]))
-      ) return false
-    }
-    return true
+    super();
+    this.ast = ast.slice()
   }
 
   toString() {
@@ -145,56 +145,10 @@ class Symbol {
   toString() {
     return `${this.symbol}`
   }
-}
 
-class Quote {
-  constructor(ast) {
-    this.ast = ast
-  }
-
-  toString() {
-    return `(quote ${this.ast.toString()})`
-  }
-}
-
-class QuasiQuote {
-  constructor(ast) {
-    this.ast = ast
-  }
-
-  toString() {
-    return `(quasiquote ${this.ast.toString()})`
-  }
-}
-
-
-class UnQuote {
-  constructor(ast) {
-    this.ast = ast
-  }
-
-  toString() {
-    return `(unquote ${this.ast.toString()})`
-  }
-}
-
-class SpliceUnQuote {
-  constructor(ast) {
-    this.ast = ast
-  }
-
-  toString() {
-    return `(splice-unquote ${this.ast.toString()})`
-  }
-}
-
-class Deref {
-  constructor(symbol) {
-    this.symbol = symbol
-  }
-
-  toString() {
-    return `(deref ${this.symbol.toString()})`
+  equals(other) {
+    if (!(other instanceof Symbol)) return false
+    return this.symbol === other.symbol
   }
 }
 
@@ -234,7 +188,6 @@ class Atom {
     return value
   }
 
-
   toString() {
     return `(atom ${this.value})`
   }
@@ -249,11 +202,6 @@ module.exports = {
   HashMap,
   Symbol,
   Keyword,
-  Quote,
-  QuasiQuote,
-  UnQuote,
-  SpliceUnQuote,
-  Deref,
   WithMeta,
   Fn
 }
